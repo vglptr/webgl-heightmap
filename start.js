@@ -46,6 +46,7 @@ var translationLocation;
 var colorLocation;
 var program;
 var gl;
+var dir = 1;
 
 function initWebGL() {
   var canvas = document.querySelector("#c");
@@ -92,7 +93,20 @@ function drawScene() {
   // Set the color.
   gl.uniform4fv(colorLocation, color);
   // Set the translation.
-  translation[0] += 0.1;
+  console.log(translation[0]);
+
+  if (translation[0] == 0) {
+    //translation[0]++;
+    dir = 1;
+  }
+
+  if (translation[0] == 400) {
+    //translation[0]--;
+    dir = -1;
+  }
+
+  translation[0] += dir * 1;
+
   gl.uniform2fv(translationLocation, translation);
 
   var primitiveType = gl.TRIANGLES;
