@@ -76,4 +76,16 @@ let m3 = {
       0, 0, 1,
     ];
   },
+
+  translate: function (m, tx, ty) {
+    return m3.multiply(m, m3.translation(tx, ty));
+  },
+
+  rotate: function (m, angleInRadians) {
+    return m3.multiply(m, m3.rotation(angleInRadians));
+  },
+
+  scale: function (m, sx, sy) {
+    return m3.multiply(m, m3.scaling(sx, sy));
+  },
 }

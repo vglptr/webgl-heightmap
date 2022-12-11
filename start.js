@@ -105,16 +105,11 @@ function drawScene() {
   scaleSin[0] = Math.sin(scale[0]);
   scaleSin[1] = Math.sin(scale[1]);
 
-  // Compute the matrices
-  var projectionMatrix = m3.projection(gl.canvas.clientWidth, gl.canvas.clientHeight);
-  var translationMatrix = m3.translation(translation[0], translation[1]);
-  var rotationMatrix = m3.rotation(rotationInRadian);
-  var scaleMatrix = m3.scaling(scaleSin[0], scaleSin[1]);
-
-  // Multiply the matrices.
-  var matrix = m3.multiply(projectionMatrix, translationMatrix);
-  matrix = m3.multiply(matrix, rotationMatrix);
-  matrix = m3.multiply(matrix, scaleMatrix);
+  // Compute the matrix
+  var matrix = m3.projection(gl.canvas.clientWidth, gl.canvas.clientHeight);
+  matrix = m3.translate(matrix, translation[0], translation[1]);
+  matrix = m3.rotate(matrix, rotationInRadian);
+  matrix = m3.scale(matrix, scaleSin[0], scaleSin[1]);
 
   // Set the matrix.
   gl.uniformMatrix3fv(matrixLocation, false, matrix);
