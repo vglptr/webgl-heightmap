@@ -4,23 +4,14 @@ import { m3 } from "./m3";
 
 var vertexShaderSource =
   `#version 300 es
-     
-// an attribute is an input (in) to a vertex shader.
-// It will receive data from a buffer
-in vec2 a_position;
 
-uniform vec2 u_resolution;
-uniform mat3 u_matrix;
- 
-// all shaders have a main function
-void main() {
-  // Add in the translation
-  vec2 position = (u_matrix * vec3(a_position, 1)).xy;
-  vec2 zeroToOne = position / u_resolution;
-  vec2 zeroToTwo = zeroToOne * 2.0;
-  vec2 clipSpace = zeroToTwo - 1.0;
-  gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
-}
+  in vec2 a_position;
+  uniform mat3 u_matrix;
+   
+  void main() {
+    // Multiply the position by the matrix.
+    gl_Position = vec4((u_matrix * vec3(a_position, 1)).xy, 0, 1);
+  }
 `;
 
 var fragmentShaderSource =
@@ -44,11 +35,7 @@ var rotation = [0, 1];
 var scale = [1, 1];
 var rotationInRadian = 0;
 var color = [Math.random(), Math.random(), Math.random(), 1];
-var resolutionUniformLocation;
-var rotationLocation;
-var translationLocation;
 var colorLocation;
-var scaleLocation;
 var matrixLocation;
 var program;
 var gl;
@@ -65,7 +52,6 @@ function initWebGL() {
   var fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
   program = createProgram(gl, vertexShader, fragmentShader);
   var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-  resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
   colorLocation = gl.getUniformLocation(program, "u_color");
   matrixLocation = gl.getUniformLocation(program, "u_matrix");
 
@@ -94,9 +80,6 @@ function drawScene() {
   gl.clear(gl.COLOR_BUFFER_BIT);
   // Tell it to use our program (pair of shaders)
   gl.useProgram(program);
-  // Pass in the canvas resolution so we can convert from
-  // pixels to clip space in the shader
-  gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
   // Set the color.
   gl.uniform4fv(colorLocation, color);
   // Set the translation.
@@ -123,12 +106,14 @@ function drawScene() {
   scaleSin[1] = Math.sin(scale[1]);
 
   // Compute the matrices
+  var projectionMatrix = m3.projection(gl.canvas.clientWidth, gl.canvas.clientHeight);
   var translationMatrix = m3.translation(translation[0], translation[1]);
   var rotationMatrix = m3.rotation(rotationInRadian);
   var scaleMatrix = m3.scaling(scaleSin[0], scaleSin[1]);
 
   // Multiply the matrices.
-  var matrix = m3.multiply(translationMatrix, rotationMatrix);
+  var matrix = m3.multiply(projectionMatrix, translationMatrix);
+  matrix = m3.multiply(matrix, rotationMatrix);
   matrix = m3.multiply(matrix, scaleMatrix);
 
   // Set the matrix.
