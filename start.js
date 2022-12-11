@@ -8,19 +8,18 @@ var vertexShaderSource =
 in vec2 a_position;
 
 uniform vec2 u_resolution;
-
-// translation to add to position
 uniform vec2 u_translation;
-
-// rotation
 uniform vec2 u_rotation;
-
+uniform vec2 u_scale;
  
 // all shaders have a main function
 void main() {
+  // Scale the position
+  vec2 scaledPosition = a_position * u_scale;
+
   vec2 rotatedPosition = vec2(
-    a_position.x * u_rotation.y + a_position.y * u_rotation.x,
-    a_position.y * u_rotation.y - a_position.x * u_rotation.x);
+    scaledPosition.x * u_rotation.y + scaledPosition.y * u_rotation.x,
+    scaledPosition.y * u_rotation.y - scaledPosition.x * u_rotation.x);
 
   // Add in the translation
   vec2 position = rotatedPosition + u_translation;
@@ -50,12 +49,14 @@ void main() {
 
 var translation = [0, 150];
 var rotation = [0, 1];
-var rotationInDegrees = 0;
+var scale = [1, 1];
+var rotationInRadian = 0;
 var color = [Math.random(), Math.random(), Math.random(), 1];
 var resolutionUniformLocation;
 var rotationLocation;
 var translationLocation;
 var colorLocation;
+var scaleLocation;
 var program;
 var gl;
 var dir = 1;
@@ -75,6 +76,7 @@ function initWebGL() {
   translationLocation = gl.getUniformLocation(program, "u_translation");
   colorLocation = gl.getUniformLocation(program, "u_color");
   rotationLocation = gl.getUniformLocation(program, "u_rotation");
+  scaleLocation = gl.getUniformLocation(program, "u_scale");
 
   var positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -120,14 +122,20 @@ function drawScene() {
   }
 
   translation[0] += dir * 1;
-  rotationInDegrees+=0.1;
-
-  rotation[0] = Math.sin(rotationInDegrees);
-  rotation[1] = Math.cos(rotationInDegrees);
+  rotationInRadian += 0.1;
+  scale[0] += 0.1;
+  scale[1] += 0.1;
+  rotation[0] = Math.sin(rotationInRadian);
+  rotation[1] = Math.cos(rotationInRadian);
 
   gl.uniform2fv(translationLocation, translation);
   // Set the rotation.
   gl.uniform2fv(rotationLocation, rotation);
+  // Set the scale.
+  var scaleSin = [];
+  scaleSin[0] = Math.sin(scale[0]);
+  scaleSin[1] = Math.sin(scale[1]);
+  gl.uniform2fv(scaleLocation, scaleSin);
 
   var primitiveType = gl.TRIANGLES;
   var offset = 0;
