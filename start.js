@@ -1,5 +1,7 @@
 //https://webgl2fundamentals.org/webgl/lessons/webgl-fundamentals.html alapján
 
+import { m3 } from "./m3";
+
 var vertexShaderSource =
   `#version 300 es
      
@@ -8,22 +10,12 @@ var vertexShaderSource =
 in vec2 a_position;
 
 uniform vec2 u_resolution;
-uniform vec2 u_translation;
-uniform vec2 u_rotation;
-uniform vec2 u_scale;
+uniform mat3 u_matrix;
  
 // all shaders have a main function
 void main() {
-  // Scale the position
-  vec2 scaledPosition = a_position * u_scale;
-
-  vec2 rotatedPosition = vec2(
-    scaledPosition.x * u_rotation.y + scaledPosition.y * u_rotation.x,
-    scaledPosition.y * u_rotation.y - scaledPosition.x * u_rotation.x);
-
   // Add in the translation
-  vec2 position = rotatedPosition + u_translation;
-
+  vec2 position = (u_matrix * vec3(a_position, 1)).xy;
   vec2 zeroToOne = position / u_resolution;
   vec2 zeroToTwo = zeroToOne * 2.0;
   vec2 clipSpace = zeroToTwo - 1.0;
@@ -57,6 +49,7 @@ var rotationLocation;
 var translationLocation;
 var colorLocation;
 var scaleLocation;
+var matrixLocation;
 var program;
 var gl;
 var dir = 1;
@@ -73,10 +66,8 @@ function initWebGL() {
   program = createProgram(gl, vertexShader, fragmentShader);
   var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
   resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
-  translationLocation = gl.getUniformLocation(program, "u_translation");
   colorLocation = gl.getUniformLocation(program, "u_color");
-  rotationLocation = gl.getUniformLocation(program, "u_rotation");
-  scaleLocation = gl.getUniformLocation(program, "u_scale");
+  matrixLocation = gl.getUniformLocation(program, "u_matrix");
 
   var positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -128,14 +119,21 @@ function drawScene() {
   rotation[0] = Math.sin(rotationInRadian);
   rotation[1] = Math.cos(rotationInRadian);
 
-  gl.uniform2fv(translationLocation, translation);
-  // Set the rotation.
-  gl.uniform2fv(rotationLocation, rotation);
-  // Set the scale.
   var scaleSin = [];
   scaleSin[0] = Math.sin(scale[0]);
   scaleSin[1] = Math.sin(scale[1]);
-  gl.uniform2fv(scaleLocation, scaleSin);
+
+  // Compute the matrices
+  var translationMatrix = m3.translation(translation[0], translation[1]);
+  var rotationMatrix = m3.rotation(rotationInRadian);
+  var scaleMatrix = m3.scaling(scaleSin[0], scaleSin[1]);
+
+  // Multiply the matrices.
+  var matrix = m3.multiply(translationMatrix, rotationMatrix);
+  matrix = m3.multiply(matrix, scaleMatrix);
+
+  // Set the matrix.
+  gl.uniformMatrix3fv(matrixLocation, false, matrix);
 
   var primitiveType = gl.TRIANGLES;
   var offset = 0;
