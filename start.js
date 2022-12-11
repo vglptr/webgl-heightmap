@@ -100,7 +100,6 @@ function drawScene() {
   // Set the color.
   gl.uniform4fv(colorLocation, color);
   // Set the translation.
-  console.log(translation[0]);
 
   if (translation[0] == 0) {
     //translation[0]++;
@@ -113,9 +112,9 @@ function drawScene() {
   }
 
   translation[0] += dir * 1;
-  rotationInRadian += 0.1;
-  scale[0] += 0.1;
-  scale[1] += 0.1;
+  rotationInRadian += 0.01;
+  scale[0] += 0.01;
+  scale[1] += 0.01;
   rotation[0] = Math.sin(rotationInRadian);
   rotation[1] = Math.cos(rotationInRadian);
 
