@@ -7,10 +7,16 @@ var vertexShaderSource =
 // It will receive data from a buffer
 in vec2 a_position;
 uniform vec2 u_resolution;
+
+// translation to add to position
+uniform vec2 u_translation;
  
 // all shaders have a main function
 void main() {
-  vec2 zeroToOne = a_position / u_resolution;
+  // Add in the translation
+  vec2 position = a_position + u_translation;
+
+  vec2 zeroToOne = position / u_resolution;
   vec2 zeroToTwo = zeroToOne * 2.0;
   vec2 clipSpace = zeroToTwo - 1.0;
   gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
@@ -33,29 +39,31 @@ void main() {
 }
 `;
 
+var translation = [0, 0];
+var color = [Math.random(), Math.random(), Math.random(), 1];
+var resolutionUniformLocation;
+var translationLocation;
+var colorLocation;
+var program;
+var gl;
+
 function initWebGL() {
   var canvas = document.querySelector("#c");
-  var gl = canvas.getContext("webgl2");
+  gl = canvas.getContext("webgl2");
   if (!gl) {
     alert("error: no webgl capability");
     return;
   }
   var vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
   var fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-  var program = createProgram(gl, vertexShader, fragmentShader);
+  program = createProgram(gl, vertexShader, fragmentShader);
   var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-  var resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
+  resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
+  translationLocation = gl.getUniformLocation(program, "u_translation");
+  colorLocation = gl.getUniformLocation(program, "u_color");
   var positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  var positions = [
-    10, 20,
-    80, 20,
-    10, 30,
-    10, 30,
-    80, 20,
-    80, 30,
-  ];
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+  setGeometry(gl);
   var vao = gl.createVertexArray();
   gl.bindVertexArray(vao);
   gl.enableVertexAttribArray(positionAttributeLocation);
@@ -66,6 +74,11 @@ function initWebGL() {
   var offset = 0;        // start at the beginning of the buffer
   gl.vertexAttribPointer(
     positionAttributeLocation, size, type, normalize, stride, offset);
+
+  drawScene(gl);
+}
+
+function drawScene() {
   resizeCanvasToDisplaySize(gl.canvas);
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   // Clear the canvas
@@ -76,10 +89,47 @@ function initWebGL() {
   // Pass in the canvas resolution so we can convert from
   // pixels to clip space in the shader
   gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+  // Set the color.
+  gl.uniform4fv(colorLocation, color);
+  // Set the translation.
+  translation[0] += 0.1;
+  gl.uniform2fv(translationLocation, translation);
+
   var primitiveType = gl.TRIANGLES;
   var offset = 0;
-  var count = 6;
+  var count = 18;
   gl.drawArrays(primitiveType, offset, count);
+  window.requestAnimationFrame(drawScene);
+}
+
+function setGeometry(gl) {
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array([
+      // left column
+      0, 0,
+      30, 0,
+      0, 150,
+      0, 150,
+      30, 0,
+      30, 150,
+
+      // top rung
+      30, 0,
+      100, 0,
+      30, 30,
+      30, 30,
+      100, 0,
+      100, 30,
+
+      // middle rung
+      30, 60,
+      67, 60,
+      30, 90,
+      30, 90,
+      67, 60,
+      67, 90]),
+    gl.STATIC_DRAW);
 }
 
 function createShader(gl, type, source) {
