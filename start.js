@@ -6,15 +6,24 @@ var vertexShaderSource =
 // an attribute is an input (in) to a vertex shader.
 // It will receive data from a buffer
 in vec2 a_position;
+
 uniform vec2 u_resolution;
 
 // translation to add to position
 uniform vec2 u_translation;
+
+// rotation
+uniform vec2 u_rotation;
+
  
 // all shaders have a main function
 void main() {
+  vec2 rotatedPosition = vec2(
+    a_position.x * u_rotation.y + a_position.y * u_rotation.x,
+    a_position.y * u_rotation.y - a_position.x * u_rotation.x);
+
   // Add in the translation
-  vec2 position = a_position + u_translation;
+  vec2 position = rotatedPosition + u_translation;
 
   vec2 zeroToOne = position / u_resolution;
   vec2 zeroToTwo = zeroToOne * 2.0;
@@ -39,9 +48,12 @@ void main() {
 }
 `;
 
-var translation = [0, 0];
+var translation = [0, 150];
+var rotation = [0, 1];
+var rotationInDegrees = 0;
 var color = [Math.random(), Math.random(), Math.random(), 1];
 var resolutionUniformLocation;
+var rotationLocation;
 var translationLocation;
 var colorLocation;
 var program;
@@ -62,6 +74,8 @@ function initWebGL() {
   resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
   translationLocation = gl.getUniformLocation(program, "u_translation");
   colorLocation = gl.getUniformLocation(program, "u_color");
+  rotationLocation = gl.getUniformLocation(program, "u_rotation");
+
   var positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   setGeometry(gl);
@@ -106,8 +120,14 @@ function drawScene() {
   }
 
   translation[0] += dir * 1;
+  rotationInDegrees+=0.1;
+
+  rotation[0] = Math.sin(rotationInDegrees);
+  rotation[1] = Math.cos(rotationInDegrees);
 
   gl.uniform2fv(translationLocation, translation);
+  // Set the rotation.
+  gl.uniform2fv(rotationLocation, rotation);
 
   var primitiveType = gl.TRIANGLES;
   var offset = 0;
