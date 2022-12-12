@@ -40,7 +40,7 @@ void main() {
 }
 `;
 
-var translation = [0, 150, 0];
+var translation = [0, 0, -360];
 var rotation = [0, 1, 0];
 var scale = [1, 1, 1];
 var rotationInRadian = 0;
@@ -141,14 +141,11 @@ function drawScene() {
   scaleSin[2] = Math.sin(scale[2]);
 
   // Compute the matrix
-  var left = 0;
-  var right = gl.canvas.clientWidth;
-  var bottom = gl.canvas.clientHeight;
-  var top = 0;
-  var near = 400;
-  var far = -400;
-  var matrix = m4.orthographic(left, right, bottom, top, near, far);
-  // var matrix = m4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
+  var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+  var zNear = 1;
+  var zFar = 2000;
+  var fieldOfViewRadians = Math.PI / 3;
+  var matrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
   matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
   matrix = m4.xRotate(matrix, rotation[0]);
   matrix = m4.yRotate(matrix, rotation[1]);
