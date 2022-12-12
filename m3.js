@@ -2,24 +2,24 @@ export { m3 };
 
 let m3 = {
   multiply: function (a, b) {
-    var a00 = a[0 * 3 + 0];
-    var a01 = a[0 * 3 + 1];
-    var a02 = a[0 * 3 + 2];
-    var a10 = a[1 * 3 + 0];
-    var a11 = a[1 * 3 + 1];
-    var a12 = a[1 * 3 + 2];
-    var a20 = a[2 * 3 + 0];
-    var a21 = a[2 * 3 + 1];
-    var a22 = a[2 * 3 + 2];
-    var b00 = b[0 * 3 + 0];
-    var b01 = b[0 * 3 + 1];
-    var b02 = b[0 * 3 + 2];
-    var b10 = b[1 * 3 + 0];
-    var b11 = b[1 * 3 + 1];
-    var b12 = b[1 * 3 + 2];
-    var b20 = b[2 * 3 + 0];
-    var b21 = b[2 * 3 + 1];
-    var b22 = b[2 * 3 + 2];
+    let a00 = a[0 * 3 + 0];
+    let a01 = a[0 * 3 + 1];
+    let a02 = a[0 * 3 + 2];
+    let a10 = a[1 * 3 + 0];
+    let a11 = a[1 * 3 + 1];
+    let a12 = a[1 * 3 + 2];
+    let a20 = a[2 * 3 + 0];
+    let a21 = a[2 * 3 + 1];
+    let a22 = a[2 * 3 + 2];
+    let b00 = b[0 * 3 + 0];
+    let b01 = b[0 * 3 + 1];
+    let b02 = b[0 * 3 + 2];
+    let b10 = b[1 * 3 + 0];
+    let b11 = b[1 * 3 + 1];
+    let b12 = b[1 * 3 + 2];
+    let b20 = b[2 * 3 + 0];
+    let b21 = b[2 * 3 + 1];
+    let b22 = b[2 * 3 + 2];
 
     return [
       b00 * a00 + b01 * a10 + b02 * a20,
@@ -60,8 +60,8 @@ let m3 = {
   },
 
   rotation: function (angleInRadians) {
-    var c = Math.cos(angleInRadians);
-    var s = Math.sin(angleInRadians);
+    let c = Math.cos(angleInRadians);
+    let s = Math.sin(angleInRadians);
     return [
       c, -s, 0,
       s, c, 0,
