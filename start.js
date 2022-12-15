@@ -1,61 +1,27 @@
 //https://webgl2fundamentals.org/webgl/lessons/webgl-fundamentals.html alapján
 
 import { m4 } from "./m4";
-import { vertexShaderSource, fragmentShaderSource } from "./shaders";
 import { Cube } from "./cube";
 import { Camera } from "./camera";
 
-var gl;
-var colorAttributeLocation;
-var matrixLocation;
-var program;
+globalThis.gl;
 let cam;
+let cube;
+let cube2;
 
 function initWebGL() {
   var canvas = document.querySelector("#c");
-  gl = canvas.getContext("webgl2");
+  globalThis.gl = canvas.getContext("webgl2");
   if (!gl) {
     alert("error: no webgl capability");
     return;
   }
-  var vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-  var fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-  program = createProgram(gl, vertexShader, fragmentShader);
-  var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-  matrixLocation = gl.getUniformLocation(program, "u_matrix");
-  colorAttributeLocation = gl.getAttribLocation(program, "a_color");
 
-  var vao = gl.createVertexArray();
-  gl.bindVertexArray(vao);
+  cube = new Cube();
+  cube.init();
 
-  let cube = new Cube();
-
-  // create the color buffer, make it the current ARRAY_BUFFER
-  // and copy in the color values
-  var colorBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, cube.colors, gl.STATIC_DRAW);
-  // Turn on the attribute
-  gl.enableVertexAttribArray(colorAttributeLocation);
-  // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
-  var size = 3;          // 3 components per iteration
-  var type = gl.UNSIGNED_BYTE;   // the data is 8bit unsigned bytes
-  var normalize = true;  // convert from 0-255 to 0.0-1.0
-  var stride = 0;        // 0 = move forward size * sizeof(type) each
-  // iteration to get the next color
-  var offset = 0;        // start at the beginning of the buffer
-  gl.vertexAttribPointer(colorAttributeLocation, size, type, normalize, stride, offset);
-
-  var positionBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, cube.positions, gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(positionAttributeLocation);
-  var size = 3;          // 2 components per iteration
-  var type = gl.FLOAT;   // the data is 32bit floats
-  var normalize = false; // don't normalize the data
-  var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-  var offset = 0;        // start at the beginning of the buffer
-  gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
+  cube2 = new Cube();
+  cube2.init();
 
   cam = new Camera();
   cam.init();
@@ -69,54 +35,25 @@ function mainLoop() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   resizeCanvasToDisplaySize(gl.canvas);
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-  gl.useProgram(program);
+
 
   var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-  var zNear = 1;
-  var zFar = 2000;
+  var zNear = 0.1;
+  var zFar = 500;
   var projectionMatrix = m4.perspective(m4.degToRad(75), aspect, zNear, zFar);
 
 
-  //var cameraMatrix = m4.lookAt([-1, 2, 2], [0, 0, 0], [0, 1, 0]);
   var viewMatrix = m4.inverse(cam.matrix);
   var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
   // add in the translation for this F
-  var matrix = m4.translate(viewProjectionMatrix, 0, 0, 0);
+  //ezt még lehet, hogy majd máshogy kell...
+  let matrix = m4.translate(viewProjectionMatrix, 0, 0, 0);
+  cube.draw(matrix);
+  let matrix2 = m4.translate(viewProjectionMatrix, 2, 0, 0);
+  cube2.draw(matrix2);
 
-  // Set the matrix.
-  gl.uniformMatrix4fv(matrixLocation, false, matrix);
-
-  // Draw the geometry.
-  var primitiveType = gl.TRIANGLES;
-  var offset = 0;
-  var count = 36;
-  gl.drawArrays(primitiveType, offset, count);
   window.requestAnimationFrame(mainLoop);
-}
-
-function createShader(gl, type, source) {
-  var shader = gl.createShader(type);
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-  if (success) {
-    return shader;
-  }
-
-  console.log(gl.getShaderInfoLog(shader));
-  gl.deleteShader(shader);
-}
-
-function createProgram(gl, vertexShader, fragmentShader) {
-  var program = gl.createProgram();
-  gl.attachShader(program, vertexShader);
-  gl.attachShader(program, fragmentShader);
-  gl.linkProgram(program);
-  var success = gl.getProgramParameter(program, gl.LINK_STATUS);
-  if (success) {
-    return program;
-  }
 }
 
 function resizeCanvasToDisplaySize(canvas) {

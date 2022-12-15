@@ -1,6 +1,6 @@
-export { vertexShaderSource, fragmentShaderSource };
+export { cubeVertexShaderSource, cubeFragmentShaderSource };
 
-var vertexShaderSource =
+let cubeVertexShaderSource =
   `#version 300 es
 
   in vec4 a_color;
@@ -19,7 +19,7 @@ var vertexShaderSource =
   }
 `;
 
-var fragmentShaderSource =
+let cubeFragmentShaderSource =
   `#version 300 es
  
 // fragment shaders don't have a default precision so we need
