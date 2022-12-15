@@ -52,7 +52,7 @@ function mainLoop() {
   cube.draw(matrix);
   let matrix2 = m4.translate(viewProjectionMatrix, 2, 0, 0);
   cube2.draw(matrix2);
-
+  cam.update();
   window.requestAnimationFrame(mainLoop);
 }
 
