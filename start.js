@@ -4,7 +4,7 @@ import { m4 } from "./m4";
 import { Cube } from "./cube";
 import { Camera } from "./camera";
 
-let logLevel = 2; //0..5, where 0 is off and 5 is trace inside a loop
+let logLevel = 4; //0..5, where 0 is off and 5 is trace inside a loop
 
 globalThis.gl;
 let cam;

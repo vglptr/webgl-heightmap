@@ -4,6 +4,8 @@ export { Camera };
 class Camera {
   matrix;
   Keyboard;
+  canvas;
+  isPointerLocked;
 
   constructor() {
     this.matrix = m4.lookAt([0, 1, 2], [0, 0, 0], [0, 1, 0]);
@@ -21,9 +23,21 @@ class Camera {
   }
 
   init() {
-    let canvas = document.querySelector("#c");
-    canvas.addEventListener("mousemove", (e) => {
-      log4(`mouse: ${e.clientX}:${e.clientY} canvas dim: ${canvas.width}:${canvas.height}`);
+    this.canvas = document.querySelector("#c");
+    this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock;
+    document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
+    document.addEventListener('pointerlockchange', () => this.isPointerLocked = !this.isPointerLocked, false);
+    this.canvas.onclick = () => {
+      this.canvas.requestPointerLock();
+    }
+    this.canvas.addEventListener("mousemove", (e) => {
+      log4(`mouse: ${e.clientX}:${e.clientY} mousemovementX: ${e.movementX} mousemovementY: ${e.movementY} canvas dim: ${this.canvas.width}:${this.canvas.height}`);
+
+      if (this.isPointerLocked) {
+        this.matrix = m4.yRotate(this.matrix, -0.001 * e.movementX);
+        this.matrix = m4.xRotate(this.matrix, -0.001 * e.movementY);
+
+      }
     }, false);
 
     this.Keyboard = {
@@ -55,6 +69,9 @@ class Camera {
     }
     if (this.Keyboard.keys["d"] > 0) {
       this.translate(0.1, 0, 0);
+    }
+    if (this.Keyboard.keys["escape"] > 0) {
+      document.exitPointerLock();
     }
   }
 
