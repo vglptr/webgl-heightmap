@@ -4,6 +4,8 @@ import { m4 } from "./m4";
 import { Cube } from "./cube";
 import { Camera } from "./camera";
 
+let logLevel = 2; //0..5, where 0 is off and 5 is trace inside a loop
+
 globalThis.gl;
 let cam;
 let cube;
@@ -74,4 +76,14 @@ function resizeCanvasToDisplaySize(canvas) {
   return needResize;
 }
 
+function initLog() {
+  let logLevels = [1, 2, 3, 4, 5];
+  logLevels.forEach((i) => {
+    globalThis["log" + i] = function (m) {
+      if (logLevel >= i) console.log(m);
+    }
+  });
+}
+
+initLog();
 initWebGL();

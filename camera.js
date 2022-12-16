@@ -20,35 +20,10 @@ class Camera {
        */
   }
 
-
   init() {
-    /*
-    document.addEventListener('keydown', (e) => {
-      if (e.key == "w") {
-        this.translate(0, 0, -0.1);
-      }
-      if (e.key == "s") {
-        this.translate(0, 0, 0.1);
-      }
-      if (e.key == "a") {
-        this.translate(-0.1, 0, 0);
-      }
-      if (e.key == "d") {
-        this.translate(0.1, 0, 0);
-      }
-      if (e.key == "q") {
-        this.translate(0.0, 0.1, 0.0);
-      }
-      if (e.key == "y") {
-        this.translate(0.0, -0.1, 0.0);
-      }
-    });
-    */
-
     let canvas = document.querySelector("#c");
     canvas.addEventListener("mousemove", (e) => {
-      //      console.log(`mouse: ${e.clientX}:${e.clientY}`);
-      //      console.log(`canvas dim: ${canvas.width}:${canvas.height}`);
+      log4(`mouse: ${e.clientX}:${e.clientY} canvas dim: ${canvas.width}:${canvas.height}`);
     }, false);
 
     this.Keyboard = {
@@ -56,20 +31,19 @@ class Camera {
       keyPress: function (evt) {
         if (this.keys[evt.key] > 0) { return; }
         this.keys[evt.key] = evt.timeStamp || (new Date()).getTime();
-        console.log(evt);
-        console.log(JSON.stringify(this.keys));
+        log4(JSON.stringify(this.keys));
       },
       keyRelease: function (evt) {
         this.keys[evt.key] = 0;
-        console.log(JSON.stringify(this.keys));
+        log4(JSON.stringify(this.keys));
       }
     };
     window.addEventListener("keydown", this.Keyboard.keyPress.bind(this.Keyboard));
     window.addEventListener("keyup", this.Keyboard.keyRelease.bind(this.Keyboard));
+
   }
 
   update() {
-    console.log("in update");
     if (this.Keyboard.keys["w"] > 0) {
       this.translate(0, 0, -0.1);
     }
