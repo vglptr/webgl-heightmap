@@ -4,26 +4,45 @@ import { m4 } from "./m4";
 export { Cube }
 
 class Cube {
+  //██████████████████████████████████████████ GPU OPTIMIZATIONS ███████████████████████████████████████████\\
+
   static isInitCalled;
   static drawCode; //for identifiing during draw, so object with the same draw call will not call useProgram()
   static drawCodeUsed;
+
+  //███████████████████████████████████████████████ VERTICES ███████████████████████████████████████████████\\
+
   static positions;
   //static colors;
   static normals;
 
+  //███████████████████████████████████████████████ SHADERS ████████████████████████████████████████████████\\
+
   static vertexShader;
   static fragmentShader;
   static program;
+
+  //███████████████████████████████████████████████ LOCATIONS ██████████████████████████████████████████████\\
+
   static positionAttributeLocation;
   //static colorAttributeLocation;
   static colorUniformLocation;
   static reverseLightDirectionLocation;  //for shading the sides
   static normalAttributeLocation;
   static matrixLocation;
+
+  //███████████████████████████████████████████████ BUFFERS ████████████████████████████████████████████████\\
+
   static vao;
   static positionBuffer;
   //static colorBuffer;
   static normalBuffer;
+
+  //██████████████████████████████████████████████ LOCAL STATE █████████████████████████████████████████████\\
+
+  positionMatrix;
+
+  //████████████████████████████████████████████████████████████████████████████████████████████████████████\\
 
   constructor() {
     // Calling init only once per shape type, and saving everything to static context
@@ -84,7 +103,7 @@ class Cube {
     gl.vertexAttribPointer(Cube.positionAttributeLocation, size_f, type_f, normalize_f, stride_f, offset_f);
   }
 
-  draw(matrix, drawCode) {
+  draw(drawCode) {
     if (drawCode != Cube.drawCode || Cube.drawCodeUsed == false) {
       gl.useProgram(Cube.program);
       Cube.drawCodeUsed = true;
@@ -98,7 +117,7 @@ class Cube {
     // set the light direction.
     gl.uniform3fv(Cube.reverseLightDirectionLocation, m4.normalize([0.5, 0.7, 1]));
     // Set the matrix.
-    gl.uniformMatrix4fv(Cube.matrixLocation, false, matrix);
+    gl.uniformMatrix4fv(Cube.matrixLocation, false, this.positionMatrix);
     gl.drawArrays(primitiveType, offset, count);
   }
 

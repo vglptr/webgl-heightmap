@@ -19,21 +19,19 @@ function initWebGL() {
     return;
   }
 
-
-
   for (let i = 0; i < 20; i++) {
     for (let j = 0; j < 20; j++) {
       let cube = new Cube();
       cubes.push(cube);
     }
   }
-  //Cube.init();
 
   cam = new Camera();
   cam.init();
   mainLoop();
 }
 
+let rot = 0;
 function mainLoop() {
   gl.enable(gl.CULL_FACE);
   gl.enable(gl.DEPTH_TEST);
@@ -42,22 +40,24 @@ function mainLoop() {
   resizeCanvasToDisplaySize(gl.canvas);
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-
   var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
   var zNear = 0.1;
   var zFar = 500;
   var projectionMatrix = m4.perspective(m4.degToRad(75), aspect, zNear, zFar);
 
-
   var viewMatrix = m4.inverse(cam.matrix);
   var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+
+  rot += 0.01;
 
   for (let i = 0; i < 20; i++) {
     for (let j = 0; j < 20; j++) {
       let matrix = m4.translate(viewProjectionMatrix, i * 2, j * 2, 0);
-      //cube.draw(matrix);
-      cubes[20 * j + i].draw(matrix, "cube");
-      //cubes[0].draw(matrix, "cube");
+      matrix = m4.xRotate(matrix, rot);
+      matrix = m4.yRotate(matrix, rot);
+      matrix = m4.zRotate(matrix, rot);
+      cubes[20 * j + i].positionMatrix = matrix;
+      cubes[20 * j + i].draw("cube");
     }
   }
   cam.update();
