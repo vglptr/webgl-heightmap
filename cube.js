@@ -1,5 +1,6 @@
 import { cubeVertexShaderSource, cubeFragmentShaderSource } from "./shaders";
 import { createShader, createProgram } from "./shaderutils";
+import { m4 } from "./m4";
 export { Cube }
 
 class Cube {
@@ -7,17 +8,22 @@ class Cube {
   static drawCode; //for identifiing during draw, so object with the same draw call will not call useProgram()
   static drawCodeUsed;
   static positions;
-  static colors;
+  //static colors;
+  static normals;
 
   static vertexShader;
   static fragmentShader;
   static program;
   static positionAttributeLocation;
-  static colorAttributeLocation;
+  //static colorAttributeLocation;
+  static colorUniformLocation;
+  static reverseLightDirectionLocation;  //for shading the sides
+  static normalAttributeLocation;
   static matrixLocation;
   static vao;
   static positionBuffer;
-  static colorBuffer;
+  //static colorBuffer;
+  static normalBuffer;
 
   constructor() {
     // Calling init only once per shape type, and saving everything to static context
@@ -28,33 +34,43 @@ class Cube {
   static init() {
     Cube.isInitCalled = true;
     Cube.generatePositions();
-    Cube.generateColors();
-    Cube.drawCode = "cube";
+    //Cube.generateColors();
+    Cube.generateNormals();
+    Cube.drawCode = "cube";     //for reducing number of gl.useProgram() calls
     Cube.drawCodeUsed = false;
 
     Cube.vertexShader = createShader(gl, gl.VERTEX_SHADER, cubeVertexShaderSource);
     Cube.fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, cubeFragmentShaderSource);
     Cube.program = createProgram(gl, Cube.vertexShader, Cube.fragmentShader);
-    Cube.positionAttributeLocation = gl.getAttribLocation(Cube.program, "a_position");
     Cube.matrixLocation = gl.getUniformLocation(Cube.program, "u_matrix");
-    Cube.colorAttributeLocation = gl.getAttribLocation(Cube.program, "a_color");
+    Cube.positionAttributeLocation = gl.getAttribLocation(Cube.program, "a_position");
+    Cube.colorUniformLocation = gl.getUniformLocation(Cube.program, "u_color");
+    Cube.reverseLightDirectionLocation = gl.getUniformLocation(Cube.program, "u_reverseLightDirection");
+    //Cube.colorAttributeLocation = gl.getAttribLocation(Cube.program, "a_color");
+    Cube.normalAttributeLocation = gl.getAttribLocation(Cube.program, "a_normal");
     Cube.vao = gl.createVertexArray();
     gl.bindVertexArray(Cube.vao);
 
+    Cube.normalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, Cube.normalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, Cube.normals, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(Cube.normalAttributeLocation);
+    gl.vertexAttribPointer(Cube.normalAttributeLocation, 3, gl.FLOAT, false, 0, 0); //below it's detailed which parameter means what
+
     // create the color buffer, make it the current ARRAY_BUFFER
     // and copy in the color values
-    Cube.colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, Cube.colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, Cube.colors, gl.STATIC_DRAW);
-    // Turn on the attribute
-    gl.enableVertexAttribArray(Cube.colorAttributeLocation);
-    // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
-    let size_v = 3;          // 3 components per iteration
-    let type_v = gl.UNSIGNED_BYTE;   // the data is 8bit unsigned bytes
-    let normalize_v = true;  // convert from 0-255 to 0.0-1.0
-    let stride_v = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next color
-    let offset_v = 0;        // start at the beginning of the buffer
-    gl.vertexAttribPointer(Cube.colorAttributeLocation, size_v, type_v, normalize_v, stride_v, offset_v);
+    // Cube.colorBuffer = gl.createBuffer();
+    // gl.bindBuffer(gl.ARRAY_BUFFER, Cube.colorBuffer);
+    // gl.bufferData(gl.ARRAY_BUFFER, Cube.colors, gl.STATIC_DRAW);
+    // // Turn on the attribute
+    // gl.enableVertexAttribArray(Cube.colorAttributeLocation);
+    // // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
+    // let size_v = 3;          // 3 components per iteration
+    // let type_v = gl.UNSIGNED_BYTE;   // the data is 8bit unsigned bytes
+    // let normalize_v = true;  // convert from 0-255 to 0.0-1.0
+    // let stride_v = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next color
+    // let offset_v = 0;        // start at the beginning of the buffer
+    // gl.vertexAttribPointer(Cube.colorAttributeLocation, size_v, type_v, normalize_v, stride_v, offset_v);
 
     Cube.positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, Cube.positionBuffer);
@@ -76,6 +92,11 @@ class Cube {
     let primitiveType = gl.TRIANGLES;
     let offset = 0;
     let count = 36;
+
+    // Set the color to use
+    gl.uniform4fv(Cube.colorUniformLocation, [0.2, 1.0, 0.2, 1]); // green
+    // set the light direction.
+    gl.uniform3fv(Cube.reverseLightDirectionLocation, m4.normalize([0.5, 0.7, 1]));
     // Set the matrix.
     gl.uniformMatrix4fv(Cube.matrixLocation, false, matrix);
     gl.drawArrays(primitiveType, offset, count);
@@ -92,7 +113,6 @@ class Cube {
       0, 1, 0,
 
       //front
-
       0, 0, 1,
       1, 0, 1,
       1, 1, 1,
@@ -185,4 +205,56 @@ class Cube {
       0, 0, 255,
     ]);
   }
+
+  static generateNormals() {
+    Cube.normals = new Float32Array([
+      //back
+      0, 0, -1,
+      0, 0, -1,
+      0, 0, -1,
+      0, 0, -1,
+      0, 0, -1,
+      0, 0, -1,
+
+      //front
+      0, 0, 1,
+      0, 0, 1,
+      0, 0, 1,
+      0, 0, 1,
+      0, 0, 1,
+      0, 0, 1,
+
+      //left
+      -1, 0, 0,
+      -1, 0, 0,
+      -1, 0, 0,
+      -1, 0, 0,
+      -1, 0, 0,
+      -1, 0, 0,
+
+      //right
+      1, 0, 0,
+      1, 0, 0,
+      1, 0, 0,
+      1, 0, 0,
+      1, 0, 0,
+      1, 0, 0,
+
+      //top
+      0, 1, 0,
+      0, 1, 0,
+      0, 1, 0,
+      0, 1, 0,
+      0, 1, 0,
+      0, 1, 0,
+
+      //bottom
+      0, -1, 0,
+      0, -1, 0,
+      0, -1, 0,
+      0, -1, 0,
+      0, -1, 0,
+      0, -1, 0,
+    ])
+  };
 };

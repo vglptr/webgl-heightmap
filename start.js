@@ -21,8 +21,8 @@ function initWebGL() {
 
 
 
-  for (let i = 0; i < 50; i++) {
-    for (let j = 0; j < 50; j++) {
+  for (let i = 0; i < 20; i++) {
+    for (let j = 0; j < 20; j++) {
       let cube = new Cube();
       cubes.push(cube);
     }
@@ -52,13 +52,11 @@ function mainLoop() {
   var viewMatrix = m4.inverse(cam.matrix);
   var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
-  // add in the translation for this F
-  //ezt még lehet, hogy majd máshogy kell...
-  for (let i = 0; i < 50; i++) {
-    for (let j = 0; j < 50; j++) {
+  for (let i = 0; i < 20; i++) {
+    for (let j = 0; j < 20; j++) {
       let matrix = m4.translate(viewProjectionMatrix, i * 2, j * 2, 0);
       //cube.draw(matrix);
-      cubes[50 * j + i].draw(matrix, "cube");
+      cubes[20 * j + i].draw(matrix, "cube");
       //cubes[0].draw(matrix, "cube");
     }
   }
