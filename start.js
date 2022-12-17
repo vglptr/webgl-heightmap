@@ -4,12 +4,12 @@ import { m4 } from "./m4";
 import { Cube } from "./cube";
 import { Camera } from "./camera";
 
-let logLevel = 4; //0..5, where 0 is off and 5 is trace inside a loop
+let logLevel = 0; //0..5, where 0 is off and 5 is trace inside a loop
 
 globalThis.gl;
 let cam;
-let cube;
-let cube2;
+let cubes = [];
+
 
 function initWebGL() {
   var canvas = document.querySelector("#c");
@@ -19,11 +19,15 @@ function initWebGL() {
     return;
   }
 
-  cube = new Cube();
-  cube.init();
 
-  cube2 = new Cube();
-  cube2.init();
+
+  for (let i = 0; i < 50; i++) {
+    for (let j = 0; j < 50; j++) {
+      let cube = new Cube();
+      cubes.push(cube);
+    }
+  }
+  //Cube.init();
 
   cam = new Camera();
   cam.init();
@@ -50,10 +54,14 @@ function mainLoop() {
 
   // add in the translation for this F
   //ezt még lehet, hogy majd máshogy kell...
-  let matrix = m4.translate(viewProjectionMatrix, 0, 0, 0);
-  cube.draw(matrix);
-  let matrix2 = m4.translate(viewProjectionMatrix, 2, 0, 0);
-  cube2.draw(matrix2);
+  for (let i = 0; i < 50; i++) {
+    for (let j = 0; j < 50; j++) {
+      let matrix = m4.translate(viewProjectionMatrix, i * 2, j * 2, 0);
+      //cube.draw(matrix);
+      cubes[50 * j + i].draw(matrix, "cube");
+      //cubes[0].draw(matrix, "cube");
+    }
+  }
   cam.update();
   window.requestAnimationFrame(mainLoop);
 }
