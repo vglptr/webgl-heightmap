@@ -6,21 +6,21 @@ let cubeVertexShaderSource =
   //in vec4 a_color;
   in vec4 a_position;
   in vec3 a_normal;
-  uniform mat4 u_matrix;
+  uniform mat4 u_worldViewProjection;
+  uniform mat4 u_world;
 
   // a varying the color to the fragment shader
   //out vec4 v_color;
   out vec3 v_normal;
    
   void main() {
-    // Multiply the position by the matrix.
-    gl_Position = u_matrix * a_position;
-
     // Pass the color to the fragment shader.
     //v_color = a_color;
     
-    // Pass the normal to the fragment shader
-    v_normal = a_normal;
+    gl_Position = u_worldViewProjection * a_position;
+
+    // orient the normals and pass to the fragment shader
+     v_normal = mat3(u_world) * a_normal;
   }
 `;
 

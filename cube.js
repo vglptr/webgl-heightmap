@@ -8,7 +8,6 @@ class Cube {
 
   static isInitCalled;
   static drawCode; //for identifiing during draw, so object with the same draw call will not call useProgram()
-  static drawCodeUsed;
 
   //███████████████████████████████████████████████ VERTICES ███████████████████████████████████████████████\\
 
@@ -29,7 +28,9 @@ class Cube {
   static colorUniformLocation;
   static reverseLightDirectionLocation;  //for shading the sides
   static normalAttributeLocation;
-  static matrixLocation;
+  //static matrixLocation;
+  static worldLocation;
+  static worldViewProjectionLocation;
 
   //███████████████████████████████████████████████ BUFFERS ████████████████████████████████████████████████\\
 
@@ -56,12 +57,15 @@ class Cube {
     //Cube.generateColors();
     Cube.generateNormals();
     Cube.drawCode = "cube";     //for reducing number of gl.useProgram() calls
-    Cube.drawCodeUsed = false;
 
     Cube.vertexShader = createShader(gl, gl.VERTEX_SHADER, cubeVertexShaderSource);
     Cube.fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, cubeFragmentShaderSource);
     Cube.program = createProgram(gl, Cube.vertexShader, Cube.fragmentShader);
-    Cube.matrixLocation = gl.getUniformLocation(Cube.program, "u_matrix");
+    //Cube.matrixLocation = gl.getUniformLocation(Cube.program, "u_matrix");
+
+    Cube.worldViewProjectionLocation = gl.getUniformLocation(Cube.program, "u_worldViewProjection");
+    Cube.worldLocation = gl.getUniformLocation(Cube.program, "u_world");
+
     Cube.positionAttributeLocation = gl.getAttribLocation(Cube.program, "a_position");
     Cube.colorUniformLocation = gl.getUniformLocation(Cube.program, "u_color");
     Cube.reverseLightDirectionLocation = gl.getUniformLocation(Cube.program, "u_reverseLightDirection");
@@ -104,9 +108,8 @@ class Cube {
   }
 
   draw(drawCode) {
-    if (drawCode != Cube.drawCode || Cube.drawCodeUsed == false) {
+    if (drawCode != Cube.drawCode) {
       gl.useProgram(Cube.program);
-      Cube.drawCodeUsed = true;
     }
     let primitiveType = gl.TRIANGLES;
     let offset = 0;
@@ -116,8 +119,11 @@ class Cube {
     gl.uniform4fv(Cube.colorUniformLocation, [0.2, 1.0, 0.2, 1]); // green
     // set the light direction.
     gl.uniform3fv(Cube.reverseLightDirectionLocation, m4.normalize([0.5, 0.7, 1]));
+
     // Set the matrix.
-    gl.uniformMatrix4fv(Cube.matrixLocation, false, this.positionMatrix);
+    gl.uniformMatrix4fv(Cube.worldViewProjectionLocation, false, this.positionMatrix);
+    gl.uniformMatrix4fv(Cube.worldLocation, false, m4.yRotation(0.0));
+
     gl.drawArrays(primitiveType, offset, count);
   }
 

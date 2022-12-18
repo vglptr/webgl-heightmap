@@ -8,7 +8,9 @@ let logLevel = 0; //0..5, where 0 is off and 5 is trace inside a loop
 
 globalThis.gl;
 let cam;
-let cubes = [];
+let drawables = [];
+let lastDrawCode;
+let rot = 0;
 
 
 function initWebGL() {
@@ -22,7 +24,7 @@ function initWebGL() {
   for (let i = 0; i < 20; i++) {
     for (let j = 0; j < 20; j++) {
       let cube = new Cube();
-      cubes.push(cube);
+      drawables.push(cube);
     }
   }
 
@@ -31,7 +33,6 @@ function initWebGL() {
   mainLoop();
 }
 
-let rot = 0;
 function mainLoop() {
   gl.enable(gl.CULL_FACE);
   gl.enable(gl.DEPTH_TEST);
@@ -52,12 +53,13 @@ function mainLoop() {
 
   for (let i = 0; i < 20; i++) {
     for (let j = 0; j < 20; j++) {
-      let matrix = m4.translate(viewProjectionMatrix, i * 2, j * 2, 0);
-      matrix = m4.xRotate(matrix, rot);
-      matrix = m4.yRotate(matrix, rot);
-      matrix = m4.zRotate(matrix, rot);
-      cubes[20 * j + i].positionMatrix = matrix;
-      cubes[20 * j + i].draw("cube");
+      let matrix = m4.translate(viewProjectionMatrix, i * 2, 0, j * 2);
+      //matrix = m4.xRotate(matrix, rot);
+      //matrix = m4.yRotate(matrix, rot);
+      //matrix = m4.zRotate(matrix, rot);
+      drawables[20 * j + i].positionMatrix = matrix;
+      drawables[20 * j + i].draw(lastDrawCode);
+      lastDrawCode = drawables[20 * j + i].constructor.drawCode;
     }
   }
   cam.update();
