@@ -49,6 +49,7 @@ class Cube {
     // Calling init only once per shape type, and saving everything to static context
     // During draw only the uniforms control the gpu items
     if (!Cube.isInitCalled) Cube.init();
+    this.positionMatrix = m4.yRotation(0);
   }
 
   static init() {
@@ -107,24 +108,30 @@ class Cube {
     gl.vertexAttribPointer(Cube.positionAttributeLocation, size_f, type_f, normalize_f, stride_f, offset_f);
   }
 
-  draw(drawCode) {
+  draw(drawCode, modelViewProjectionMatrix) {
     if (drawCode != Cube.drawCode) {
       gl.useProgram(Cube.program);
+
+
+      gl.uniform3fv(Cube.reverseLightDirectionLocation, m4.normalize([0.5, 0.7, 1]));
+      gl.uniformMatrix4fv(Cube.worldLocation, false, m4.yRotation(0.0));
+      gl.uniform4fv(Cube.colorUniformLocation, [0.2, 1.0, 0.2, 1]); // green
     }
+
+    gl.uniformMatrix4fv(Cube.worldViewProjectionLocation, false, modelViewProjectionMatrix);
+
     let primitiveType = gl.TRIANGLES;
     let offset = 0;
     let count = 36;
-
-    // Set the color to use
-    gl.uniform4fv(Cube.colorUniformLocation, [0.2, 1.0, 0.2, 1]); // green
-    // set the light direction.
-    gl.uniform3fv(Cube.reverseLightDirectionLocation, m4.normalize([0.5, 0.7, 1]));
-
-    // Set the matrix.
-    gl.uniformMatrix4fv(Cube.worldViewProjectionLocation, false, this.positionMatrix);
-    gl.uniformMatrix4fv(Cube.worldLocation, false, m4.yRotation(0.0));
-
     gl.drawArrays(primitiveType, offset, count);
+  }
+
+  translate(x, y, z) {
+    this.positionMatrix = m4.translate(this.positionMatrix, x, y, z);
+  }
+
+  scale(x, y, z) {
+    this.positionMatrix = m4.scale(this.positionMatrix, x, y, z);
   }
 
   static generatePositions() {

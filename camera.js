@@ -53,16 +53,16 @@ class Camera {
 
   update() {
     if (this.Keyboard.keys["w"] > 0) {
-      this.translate(0, 0, -0.1);
+      this.translate(0, 0, -1.1);
     }
     if (this.Keyboard.keys["s"] > 0) {
-      this.translate(0, 0, 0.1);
+      this.translate(0, 0, 1.1);
     }
     if (this.Keyboard.keys["a"] > 0) {
-      this.translate(-0.1, 0, 0);
+      this.translate(-1.1, 0, 0);
     }
     if (this.Keyboard.keys["d"] > 0) {
-      this.translate(0.1, 0, 0);
+      this.translate(1.1, 0, 0);
     }
     if (this.Keyboard.keys["escape"] > 0) {
       document.exitPointerLock();

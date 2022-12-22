@@ -10,6 +10,9 @@
 
 <body>
   <canvas id="c"></canvas>
+  <img src="noise2.png" id="image" width="100" height="100" alt="bla">
+  <canvas id="imgc" width="100" height="100"></canvas>
+  <div id="fps">100</div>
   <script src="start.js" type="module"></script>
 </body>
 
@@ -26,9 +29,28 @@
     height: 100%;
   }
 
+  #fps {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+  }
+
   #c {
     width: 100%;
     height: 100%;
+  }
+
+  #imgc {
+    position: absolute;
+    /*width: 100px;
+    height: 100px;*/
+    right: 0px;
+    top: 0px;
+    /*display: none;*/
+  }
+
+  #image {
+    display: none;
   }
 </style>
 

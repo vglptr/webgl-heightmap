@@ -11,6 +11,10 @@ let cam;
 let drawables = [];
 let lastDrawCode;
 let rot = 0;
+let fps = document.querySelector("#fps");
+let cubes = 100;
+let imgData;
+let elapsedSinceLastFPSdraw = 0;
 
 
 function initWebGL() {
@@ -21,9 +25,19 @@ function initWebGL() {
     return;
   }
 
-  for (let i = 0; i < 20; i++) {
-    for (let j = 0; j < 20; j++) {
+  let grayscale = [];
+  let j = 0;
+  for (let i = 0; i < imgData.data.length; i += 4) {
+    grayscale[j] = (255 - (0.2126 * imgData.data[i + 0] + 0.7152 * imgData.data[i + 1] + 0.0722 * imgData.data[i + 2])) / 10;
+    j++;
+  }
+
+
+  for (let i = 0; i < cubes; i++) {
+    for (let j = 0; j < cubes; j++) {
       let cube = new Cube();
+      cube.scale(1, grayscale[cubes * j + i], 1);
+      cube.translate(i * 1.0, 0, j * 1.0);
       drawables.push(cube);
     }
   }
@@ -34,6 +48,7 @@ function initWebGL() {
 }
 
 function mainLoop() {
+  let start = Date.now();
   gl.enable(gl.CULL_FACE);
   gl.enable(gl.DEPTH_TEST);
   gl.clearColor(0, 0, 0, 0);
@@ -50,19 +65,23 @@ function mainLoop() {
   var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
   rot += 0.01;
-
-  for (let i = 0; i < 20; i++) {
-    for (let j = 0; j < 20; j++) {
-      let matrix = m4.translate(viewProjectionMatrix, i * 2, 0, j * 2);
+  for (let i = 0; i < cubes; i++) {
+    for (let j = 0; j < cubes; j++) {
+      let m = m4.multiply(viewProjectionMatrix, drawables[cubes * j + i].positionMatrix);
       //matrix = m4.xRotate(matrix, rot);
       //matrix = m4.yRotate(matrix, rot);
       //matrix = m4.zRotate(matrix, rot);
-      drawables[20 * j + i].positionMatrix = matrix;
-      drawables[20 * j + i].draw(lastDrawCode);
-      lastDrawCode = drawables[20 * j + i].constructor.drawCode;
+      drawables[cubes * j + i].draw(lastDrawCode, m);
+      lastDrawCode = drawables[cubes * j + i].constructor.drawCode;
     }
   }
   cam.update();
+  if (elapsedSinceLastFPSdraw > 1000) {
+    fps.textContent = 1000 / (Date.now() - start);
+    elapsedSinceLastFPSdraw = 0;
+  } else {
+    elapsedSinceLastFPSdraw += (Date.now() - start);
+  }
   window.requestAnimationFrame(mainLoop);
 }
 
@@ -93,5 +112,16 @@ function initLog() {
   });
 }
 
+function getImgData() {
+  let c = document.querySelector("#imgc");
+  log5(c.width + " " + c.height);
+  let ctx = c.getContext("2d");
+  let image = document.querySelector("#image");
+  ctx.drawImage(image, 0, 0, 100, 100);
+  imgData = ctx.getImageData(0, 0, c.width, c.height);
+  log5(imgData);
+}
+
 initLog();
+getImgData();
 initWebGL();

@@ -54,11 +54,9 @@ void main() {
   // compute the light by taking the dot product
   // of the normal to the light's reverse direction
   float light = dot(normal, u_reverseLightDirection);
- 
+  
   outColor = u_color;
- 
-  // Lets multiply just the color portion (not the alpha)
-  // by the light
   outColor.rgb *= light;
+  if(outColor.r < 0.1) outColor.rgb = vec3(u_color) / 4.0;
 }
 `;
