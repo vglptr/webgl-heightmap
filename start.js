@@ -42,7 +42,7 @@ function initWebGL() {
     }
   }
 
-  cam = new Camera();
+    cam = new Camera();
   cam.init();
   mainLoop();
 }

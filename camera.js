@@ -21,6 +21,7 @@ class Camera {
     document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
     document.addEventListener('pointerlockchange', () => this.isPointerLocked = !this.isPointerLocked, false);
     this.canvas.onclick = () => {
+      if(this.isPointerLocked) return;
       this.canvas.requestPointerLock();
     }
     this.canvas.addEventListener("mousemove", (e) => {
