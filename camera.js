@@ -8,8 +8,7 @@ class Camera {
   isPointerLocked;
 
   constructor() {
-    this.matrix = m4.lookAt([0, 1, 2], [0, 0, 0], [0, 1, 0]);
-    //this.matrix = m4.translate(this.matrix, 0, 0, 2);
+    this.matrix = m4.lookAt([80, 40, 110], [0, 0, 0], [0, 1, 0]);
   }
 
   translate(x, y, z) {
