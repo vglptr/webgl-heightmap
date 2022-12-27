@@ -1,6 +1,6 @@
 # webgl-heightmap
 Learning webgl by generating 3D terrain from heightmap image.
-This project takes a 100x100 pixel png image and generates a 3D terrain out of it.
+This project takes a 100x100 pixel png image and generates a 3D terrain off of it.
 
 ## Technologies used
 * JS ES6
