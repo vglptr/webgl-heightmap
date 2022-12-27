@@ -10,6 +10,10 @@ This project takes a 100x100 pixel png image and generates a 3D terrain off of i
 * Initial commits are based on lessons from webgl2fundamentals.org
 
 ##  How to run
+By clicking here:
+https://vglptr.github.io/webgl-heightmap/
+
+OR You can run locally:
 * You need to install npm
 * npm i
 * npm run dev
