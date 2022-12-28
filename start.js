@@ -122,6 +122,8 @@ function getImgData() {
   log5(imgData);
 }
 
-initLog();
-getImgData();
-initWebGL();
+window.addEventListener('DOMContentLoaded', (event) => {
+  initLog();
+  getImgData();
+  initWebGL();
+});
