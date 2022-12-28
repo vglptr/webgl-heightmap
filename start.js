@@ -42,7 +42,7 @@ function initWebGL() {
     }
   }
 
-    cam = new Camera();
+  cam = new Camera();
   cam.init();
   mainLoop();
 }
@@ -122,7 +122,7 @@ function getImgData() {
   log5(imgData);
 }
 
-window.addEventListener('DOMContentLoaded', (event) => {
+window.addEventListener('load', (event) => {
   initLog();
   getImgData();
   initWebGL();
