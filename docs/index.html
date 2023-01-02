@@ -6,27 +6,45 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Webgl heightmap</title>
-  <script type="module" crossorigin src="/webgl-heightmap/assets/index-88068c75.js"></script>
+  <script type="module" crossorigin src="/webgl-heightmap/assets/index-273bafa2.js"></script>
 </head>
 
 <body>
-  <canvas id="c"></canvas>
-  <img src="/webgl-heightmap/assets/img-5cbf47f7.png" id="image" width="100" height="100" alt="bla">
-  <canvas id="imgc" width="100" height="100"></canvas>
-  <div id="fpsText">FPS:</div>
   <div id="fps">100</div>
-  <div id="helpText">
-    - This 3D terrain is generated from the image in the top right corner<br>
-    - img.png in project root is the image in the top right corner, and is the source of the voxel height map generation. Has to be 100x100px<br>
-    - Left mouse click on screen allows looking around using the mouse<br>
-    - ESC exits mouse look<br>
-    - W/A/S/D keys are used for moving around<br>
-
+  <div id="mainLayout">
+    <div id="toolbar">
+      <div id="toolbarLeft">
+        <div id="helpText">
+          - This 3D terrain is generated from the image on the right<br>
+          - img.png in project root is the image on the right, and is the source of the voxel height map generation. Has to be 100x100px<br>
+          - Left mouse click on screen allows looking around using the mouse<br>
+          - ESC exits mouse look<br>
+          - W/A/S/D keys are used for moving around<br>
+        </div>
+      </div>
+      <div id="toolbarCenter">
+        <canvas id="imgc" width="100" height="100"></canvas>
+        <div id="imgButtons">
+          <button id="prevImage">Prev image</button>
+          <button id="nextImage">Next image</button>
+        </div>
+        <img src="/webgl-heightmap/assets/img01-5cbf47f7.png" class="image" width="100" height="100" alt="img01">
+        <img src="/webgl-heightmap/assets/img02-61051b5c.png" class="image" width="100" height="100" alt="img02">
+        <img src="/webgl-heightmap/assets/img03-8644193f.png" class="image" width="100" height="100" alt="img03">
+      </div>
+    </div>
+    <canvas id="c"></canvas>
   </div>
   
 </body>
 
 <style>
+  * {
+    box-sizing: border-box;
+    margin: 0px;
+    font-family: 'Bahnschrift', sans-serif;
+  }
+
   html {
     width: 100%;
     height: 100%;
@@ -39,19 +57,53 @@
     height: 100%;
   }
 
+  #mainLayout {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  #toolbar {
+    display: flex;
+    width: 100%;
+    height: auto;
+    justify-content: center;
+  }
+
+  #toolbarLeft {
+    padding: 0.2vh;
+    display: flex;
+    flex-direction: column;
+    margin-left: 0.5vh;
+    margin-top: 0.5vh;
+    box-shadow: 0.3vh 0.3vh 0.3vh gray;
+    height: 15vh;
+  }
+
+  #toolbarCenter {
+    box-shadow: 0.3vh 0.3vh 0.3vh gray;
+    display: flex;
+    flex-direction: column;
+    width: 13vh;
+    height: 15vh;
+    margin-left: 0.5vh;
+    margin-top: 0.5vh;
+  }
+
+  #imgButtons {
+    display: flex;
+    justify-content: center;
+  }
+
+  #prevImage,
+  #nextImage {
+    margin: 0.3vh 0.1vh 0.1vh 0.1vh;
+  }
+
   #fps {
     position: absolute;
-    top: 0px;
-    left: 40px;
-    background-color: black;
-    color: orange;
-    font-size: 1.5vh;
-  }
-  
-  #fpsText {
-    position: absolute;
-    top: 0px;
-    left: 0px;
+    bottom: 0px;
+    right: 0px;
     background-color: black;
     color: orange;
     font-size: 1.5vh;
@@ -63,24 +115,17 @@
   }
 
   #imgc {
-    position: absolute;
-    /*width: 100px;
-    height: 100px;*/
-    right: 0px;
-    top: 0px;
-    /*display: none;*/
+    /*
+    width: 15vh;
+    height: 15vh;
+    */
   }
 
-  #image {
+  .image {
     display: none;
   }
 
   #helpText {
-    position: absolute;
-    top: 30px;
-    left: 0px;
-    color: green;
-    background-color: black;
     font-size: 2vh;
   }
 </style>
