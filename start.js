@@ -15,6 +15,7 @@ let fps = document.querySelector("#fps");
 let cubes = 100;
 let imgData;
 let elapsedSinceLastFPSdraw = 0;
+let height = -114;
 
 
 function initWebGL() {
@@ -36,7 +37,11 @@ function generateTerrain() {
   let grayscale = [];
   let j = 0;
   for (let i = 0; i < imgData.data.length; i += 4) {
-    grayscale[j] = ((0.2126 * imgData.data[i + 0] + 0.7152 * imgData.data[i + 1] + 0.0722 * imgData.data[i + 2])) / 10;
+    if(height > 0) {
+    grayscale[j] = (height - (0.2126 * imgData.data[i + 0] + 0.7152 * imgData.data[i + 1] + 0.0722 * imgData.data[i + 2])) / 10;
+  } else {
+      grayscale[j] = (-height - 255 + (0.2126 * imgData.data[i + 0] + 0.7152 * imgData.data[i + 1] + 0.0722 * imgData.data[i + 2])) / 10;
+    }
     j++;
   }
 
@@ -56,8 +61,9 @@ function mainLoop() {
   let start = Date.now();
   gl.enable(gl.CULL_FACE);
   gl.enable(gl.DEPTH_TEST);
-  gl.clearColor(0, 0, 0, 0);
+  gl.clearColor(0.9, 0.9, 0.9, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
   resizeCanvasToDisplaySize(gl.canvas);
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
@@ -82,7 +88,7 @@ function mainLoop() {
   }
   cam.update();
   if (elapsedSinceLastFPSdraw > 1000) {
-    fps.textContent = `FPS: ${1000 / (Date.now() - start)}`;
+    fps.textContent = `FPS: ${Math.round(1000 / (Date.now() - start))}`;
     elapsedSinceLastFPSdraw = 0;
   } else {
     elapsedSinceLastFPSdraw += (Date.now() - start);
@@ -151,6 +157,12 @@ function initGui(switchImg) {
     switchImg(false);
     generateTerrain();
   });
+
+  let slider = document.querySelector("#slider");
+  slider.oninput = function () {
+    height = this.value;
+    generateTerrain();
+  }
 }
 
 window.addEventListener('load', (event) => {
