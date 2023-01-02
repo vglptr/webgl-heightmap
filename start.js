@@ -25,14 +25,23 @@ function initWebGL() {
     return;
   }
 
+  generateTerrain();
+
+  cam = new Camera();
+  cam.init();
+  mainLoop();
+}
+
+function generateTerrain() {
   let grayscale = [];
   let j = 0;
   for (let i = 0; i < imgData.data.length; i += 4) {
-    grayscale[j] = (255 - (0.2126 * imgData.data[i + 0] + 0.7152 * imgData.data[i + 1] + 0.0722 * imgData.data[i + 2])) / 10;
+    grayscale[j] = ((0.2126 * imgData.data[i + 0] + 0.7152 * imgData.data[i + 1] + 0.0722 * imgData.data[i + 2])) / 10;
     j++;
   }
 
 
+  drawables = [];
   for (let i = 0; i < cubes; i++) {
     for (let j = 0; j < cubes; j++) {
       let cube = new Cube();
@@ -41,10 +50,6 @@ function initWebGL() {
       drawables.push(cube);
     }
   }
-
-  cam = new Camera();
-  cam.init();
-  mainLoop();
 }
 
 function mainLoop() {
@@ -77,7 +82,7 @@ function mainLoop() {
   }
   cam.update();
   if (elapsedSinceLastFPSdraw > 1000) {
-    fps.textContent = 1000 / (Date.now() - start);
+    fps.textContent = `FPS: ${1000 / (Date.now() - start)}`;
     elapsedSinceLastFPSdraw = 0;
   } else {
     elapsedSinceLastFPSdraw += (Date.now() - start);
@@ -113,17 +118,45 @@ function initLog() {
 }
 
 function getImgData() {
-  let c = document.querySelector("#imgc");
-  log5(c.width + " " + c.height);
-  let ctx = c.getContext("2d");
-  let image = document.querySelector("#image");
-  ctx.drawImage(image, 0, 0, 100, 100);
-  imgData = ctx.getImageData(0, 0, c.width, c.height);
-  log5(imgData);
+  let images = document.querySelectorAll(".image");
+  let currentImage = 0;
+  return function (isNext) {
+    isNext ? currentImage++ : currentImage--;
+    if (currentImage < 0) {
+      currentImage = 0;
+      return;
+    }
+    if (currentImage >= images.length) {
+      currentImage = images.length - 1;
+      return;
+    }
+    let c = document.querySelector("#imgc");
+    log5(c.width + " " + c.height);
+    let ctx = c.getContext("2d", { willReadFrequently: true });
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.drawImage(images[currentImage], 0, 0, 100, 100);
+    imgData = ctx.getImageData(0, 0, c.width, c.height);
+    log5(imgData);
+  }
+}
+
+function initGui(switchImg) {
+  let buttonNext = document.querySelector("#nextImage");
+  buttonNext.addEventListener("click", () => {
+    switchImg(true);
+    generateTerrain();
+  });
+  let buttonPrev = document.querySelector("#prevImage");
+  buttonPrev.addEventListener("click", () => {
+    switchImg(false);
+    generateTerrain();
+  });
 }
 
 window.addEventListener('load', (event) => {
   initLog();
-  getImgData();
+  const switchImg = getImgData(); //using closure to store images[] state
+  switchImg(true);
+  initGui(switchImg);
   initWebGL();
 });
